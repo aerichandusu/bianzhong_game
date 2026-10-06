@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>曾侯乙编钟 · 一钟双音 | 楚境开门</title>
+<style>
+  :root {
+    --ink: #0f0c0a;
+    --ink-2: #1b1511;
+    --lacquer: #a8332a;
+    --lacquer-dim: #6d2620;
+    --gold: #c9a227;
+    --gold-soft: #e3c765;
+    --paper: #efe6d6;
+    --jade: #6f9c8d;
+    --line: rgba(201, 162, 39, 0.28);
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
+  }
+
+  body {
+    background:
+      radial-gradient(1200px 600px at 50% -10%, #35241c 0%, rgba(24, 17, 14, 0) 62%),
+      linear-gradient(180deg, #171210 0%, #0d0a09 100%);
+    color: var(--paper);
+    font-family: "Songti SC", "SimSun", "Noto Serif SC", serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .app {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 28px 22px 56px;
+  }
+
+  header.top {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 20px;
+    align-items: baseline;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 14px;
+  }
+
+  .brand {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+
+  h1 {
+    font-size: 25px;
+    margin: 0;
+    letter-spacing: 2px;
+    color: var(--gold-soft);
+    font-weight: 600;
+  }
+
+  .brand .sub {
+    font-size: 12.5px;
+    color: rgba(239, 230, 214, 0.62);
+    letter-spacing: 0.4px;
+  }
+
+  .top-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  button {
+    font-family: inherit;
+    cursor: pointer;
+  }
+
+  .ghost {
+    background: transparent;
+    color: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 7px 15px;
+    font-size: 12.5px;
+    transition: border-color .18s ease, background .18s ease, color .18s ease;
+  }
+
+  .ghost:hover { border-color: var(--gold); color: var(--gold-soft); }
+  .ghost[aria-pressed="true"] { background: rgba(201, 162, 39, .14); border-color: var(--gold); color: var(--gold-soft); }
+
+  main {
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(320px, 1fr);
+    gap: 26px;
+    margin-top: 26px;
+    align-items: start;
+  }
+
+  @media (max-width: 900px) {
+    main { grid-template-columns: 1fr; }
+  }
+
+  .stage {
+    position: relative;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background:
+      radial-gradient(600px 320px at 50% 8%, rgba(201, 162, 39, .10), rgba(0, 0, 0, 0) 70%),
+      linear-gradient(180deg, #1d1613 0%, #120e0c 100%);
+    padding: 26px 18px 18px;
+    overflow: hidden;
+  }
+
+  .rack {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    gap: clamp(6px, 2.1vw, 22px);
+    padding: 14px 6px 0;
+  }
+
+  .beam {
+    position: absolute;
+    left: 2%;
+    right: 2%;
+    top: 22px;
+    height: 15px;
+    border-radius: 3px;
+    background: linear-gradient(180deg, #6b4426 0%, #3d2515 58%, #26160d 100%);
+    box-shadow: 0 5px 14px rgba(0, 0, 0, .55);
+  }
+
+  .beam::before,
+  .beam::after {
+    content: "";
+    position: absolute;
+    top: -4px;
+    bottom: -4px;
+    width: 12px;
+    border-radius: 3px;
+    background: linear-gradient(180deg, #7a5029, #33200f);
+  }
+  .beam::before { left: -8px; }
+  .beam::after { right: -8px; }
+
+  .bell {
+    position: relative;
+    width: clamp(64px, 8.6vw, 106px);
+    aspect-ratio: 100 / 138;
+    border: 0;
+    background: transparent;
+    padding: 0;
+    margin-top: 24px;
+    filter: drop-shadow(0 10px 16px rgba(0, 0, 0, .55));
+  }
+
+  .bell svg { display: block; width: 100%; height: 100%; overflow: visible; }
+
+  .bell .body-fill { fill: url(#bronze); transition: filter .25s ease; }
+  .bell.lit .body-fill { filter: url(#glow); }
+
+  .bell[data-lit="0"] {
+    opacity: .4;
+    filter: grayscale(.62) brightness(.7) drop-shadow(0 10px 16px rgba(0, 0, 0, .55));
+  }
+  .bell[data-lit="1"] { opacity: 1; }
+
+  .bell[data-hint="1"] {
+    opacity: .92;
+    animation: hintPulse 1.9s ease-in-out infinite;
+  }
+
+  @keyframes hintPulse {
+    0%, 100% { filter: grayscale(.3) brightness(.92) drop-shadow(0 0 8px rgba(201, 162, 39, .18)); }
+    50%      { filter: grayscale(0) brightness(1.16) drop-shadow(0 0 22px rgba(201, 162, 39, .55)); }
+  }
+
+  .zone {
+    position: absolute;
+    border: 1px dashed transparent;
+    border-radius: 10px;
+    background: transparent;
+    transition: background .16s ease, border-color .16s ease, box-shadow .16s ease;
+  }
+
+  .zone:focus-visible { outline: 2px solid var(--gold-soft); outline-offset: 2px; }
+
+  .zone-ce { left: 6%; width: 88%; bottom: 3%; height: 30%; z-index: 1; }
+  .zone-zheng { left: 37%; width: 26%; bottom: 3%; height: 30%; z-index: 2; }
+
+  .bell:hover .zone, .bell:focus-within .zone { border-color: rgba(201, 162, 39, .5); }
+  .bell:hover .zone-ce { background: rgba(111, 156, 141, .16); }
+  .bell:hover .zone-zheng { background: rgba(201, 162, 39, .2); }
+  .zone:hover { border-color: var(--gold); background: rgba(201, 162, 39, .3) !important; }
+
+  .bell.hit { animation: shake .42s ease; }
+
+  @keyframes shake {
+    0%   { transform: rotate(0deg) translateY(0); }
+    18%  { transform: rotate(-2.4deg) translateY(-2px); }
+    38%  { transform: rotate(2.2deg) translateY(0); }
+    58%  { transform: rotate(-1.4deg); }
+    78%  { transform: rotate(0.8deg); }
+    100% { transform: rotate(0deg); }
+  }
+
+  .bell .ripple {
+    position: absolute;
+    left: 50%;
+    bottom: 12%;
+    width: 16px;
+    height: 16px;
+    margin-left: -8px;
+    border-radius: 50%;
+    border: 2px solid var(--gold-soft);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .bell.hit .ripple { animation: ripple .7s ease-out; }
+
+  @keyframes ripple {
+    0%   { transform: scale(.4); opacity: .9; }
+    100% { transform: scale(4.4); opacity: 0; }
+  }
+
+  .bell-label {
+    position: absolute;
+    top: -30px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 11px;
+    letter-spacing: 1px;
+    color: rgba(239, 230, 214, .5);
+  }
+
+  .bell[data-lit="1"] .bell-label { color: rgba(227, 199, 101, .85); }
+
+  .musicians {
+    display: flex;
+    justify-content: center;
+    gap: clamp(9px, 2vw, 20px);
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(201, 162, 39, .16);
+    min-height: 62px;
+    align-items: flex-end;
+  }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px 22px;
+    margin-top: 18px;
+    padding-top: 13px;
+    border-top: 1px solid rgba(201, 162, 39, .16);
+    font-size: 11.5px;
+    color: rgba(239, 230, 214, .58);
+    font-family: "Segoe UI", system-ui, sans-serif;
+  }
+
+  .legend span { display: inline-flex; align-items: center; gap: 7px; }
+
+  .legend i {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+  .legend i.gold { background: var(--gold); box-shadow: 0 0 8px rgba(201, 162, 39, .7); }
+  .legend i.jade { background: var(--jade); box-shadow: 0 0 8px rgba(111, 156, 141, .7); }
+
+  .musician { opacity: .16; transition: opacity .5s ease, transform .5s ease; }
+  .musician.lit { opacity: .92; transform: translateY(-3px); }
+  .musician svg { display: block; width: clamp(16px, 2.2vw, 24px); height: auto; }
+
+  .panel { display: grid; gap: 16px; }
+
+  .card {
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: linear-gradient(180deg, rgba(30, 23, 19, .92), rgba(19, 14, 12, .92));
+    padding: 17px 18px;
+  }
+
+  .card h2 {
+    margin: 0 0 9px;
+    font-size: 12.5px;
+    letter-spacing: 2px;
+    color: var(--gold);
+    font-weight: 600;
+  }
+
+  .hint-cn {
+    font-size: 16px;
+    line-height: 1.62;
+    margin: 0 0 7px;
+    min-height: 52px;
+  }
+
+  .hint-en {
+    font-size: 12.5px;
+    line-height: 1.55;
+    color: rgba(239, 230, 214, .58);
+    font-family: "Segoe UI", system-ui, sans-serif;
+    margin: 0;
+    min-height: 36px;
+  }
+
+  .progress-track {
+    display: flex;
+    gap: 5px;
+    margin-top: 14px;
+  }
+
+  .progress-track span {
+    flex: 1;
+    height: 4px;
+    border-radius: 3px;
+    background: rgba(239, 230, 214, .14);
+    transition: background .3s ease, box-shadow .3s ease;
+  }
+
+  .progress-track span.done { background: var(--gold); box-shadow: 0 0 10px rgba(201, 162, 39, .6); }
+
+  .score { display: flex; flex-wrap: wrap; gap: 8px; }
+
+  .note-chip {
+    min-width: 46px;
+    padding: 7px 4px 6px;
+    border-radius: 4px;
+    border: 1px solid var(--line);
+    background: rgba(0, 0, 0, .28);
+    text-align: center;
+    font-size: 15px;
+    line-height: 1.18;
+    transition: all .25s ease;
+  }
+
+  .note-chip small {
+    display: block;
+    font-size: 10px;
+    font-family: "Segoe UI", system-ui, sans-serif;
+    color: rgba(239, 230, 214, .5);
+    letter-spacing: .5px;
+  }
+
+  .note-chip.current {
+    border-color: var(--gold);
+    background: rgba(201, 162, 39, .18);
+    box-shadow: 0 0 0 1px rgba(201, 162, 39, .35), 0 0 18px rgba(201, 162, 39, .2);
+  }
+
+  .note-chip.done {
+    border-color: rgba(111, 156, 141, .6);
+    background: rgba(111, 156, 141, .16);
+    color: #cfe6dd;
+  }
+
+  .scale-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+
+  .scale-cell {
+    border: 1px solid var(--line);
+    background: rgba(0, 0, 0, .26);
+    border-radius: 4px;
+    padding: 8px 2px 7px;
+    text-align: center;
+    color: var(--paper);
+    font-size: 14px;
+    transition: all .18s ease;
+  }
+
+  .scale-cell:hover { border-color: var(--gold); color: var(--gold-soft); background: rgba(201, 162, 39, .12); }
+  .scale-cell small { display: block; font-size: 10px; color: rgba(239, 230, 214, .55); font-family: "Segoe UI", system-ui, sans-serif; }
+
+  .tuner-row { display: flex; align-items: center; gap: 12px; }
+
+  input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    flex: 1;
+    height: 4px;
+    border-radius: 3px;
+    background: linear-gradient(90deg, var(--lacquer-dim), var(--gold), var(--jade));
+    outline: none;
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 17px; height: 17px;
+    border-radius: 50%;
+    background: var(--paper);
+    border: 2px solid var(--gold);
+    cursor: pointer;
+  }
+  input[type="range"]::-moz-range-thumb {
+    width: 15px; height: 15px; border-radius: 50%;
+    background: var(--paper); border: 2px solid var(--gold); cursor: pointer;
+  }
+
+  .tuner-value {
+    font-family: "Segoe UI", system-ui, sans-serif;
+    font-size: 12px;
+    color: var(--gold-soft);
+    min-width: 74px;
+    text-align: right;
+  }
+
+  .tuner-scale {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10.5px;
+    color: rgba(239, 230, 214, .5);
+    font-family: "Segoe UI", system-ui, sans-serif;
+    margin-top: 7px;
+  }
+
+  .caption {
+    margin-top: 11px;
+    font-size: 12.5px;
+    line-height: 1.55;
+    color: rgba(239, 230, 214, .68);
+    min-height: 38px;
+  }
+
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(10, 7, 6, .9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    z-index: 50;
+    backdrop-filter: blur(3px);
+  }
+
+  .overlay[hidden] { display: none; }
+
+  .overlay-card {
+    max-width: 560px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: linear-gradient(180deg, #221a15, #130f0d);
+    padding: 34px 34px 30px;
+    text-align: left;
+  }
+
+  .overlay-card h2 {
+    margin: 0 0 14px;
+    font-size: 22px;
+    color: var(--gold-soft);
+    letter-spacing: 3px;
+    font-weight: 600;
+  }
+
+  .overlay-card p { margin: 0 0 12px; line-height: 1.75; font-size: 14.5px; }
+
+  .overlay-card p.en {
+    font-family: "Segoe UI", system-ui, sans-serif;
+    font-size: 12.5px;
+    color: rgba(239, 230, 214, .6);
+    line-height: 1.6;
+  }
+
+  .fact {
+    border-left: 2px solid var(--gold);
+    padding-left: 13px;
+    margin: 18px 0 22px !important;
+    color: var(--gold-soft);
+    font-size: 14px !important;
+  }
+
+  .primary {
+    background: var(--gold);
+    color: #201709;
+    border: 0;
+    border-radius: 999px;
+    padding: 11px 30px;
+    font-size: 14.5px;
+    letter-spacing: 2px;
+    font-weight: 600;
+    transition: transform .16s ease, box-shadow .16s ease;
+  }
+
+  .primary:hover { transform: translateY(-1px); box-shadow: 0 8px 22px rgba(201, 162, 39, .3); }
+
+  .footer-note {
+    margin-top: 22px;
+    font-size: 11.5px;
+    line-height: 1.7;
+    color: rgba(239, 230, 214, .42);
+  }
+
+  .sr-only {
+    position: absolute; width: 1px; height: 1px;
+    padding: 0; margin: -1px; overflow: hidden;
+    clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header class="top">
+    <div class="brand">
+      <h1>一钟双音</h1>
+      <span class="sub">曾侯乙编钟互动小游戏 · 楚境开门 | Bells of Marquis Yi</span>
+    </div>
+    <div class="top-actions">
+      <button class="ghost" id="btn-demo" type="button">▷ 听示范 / Demo</button>
+      <button class="ghost" id="btn-free" type="button" aria-pressed="false">自由敲击 / Free play</button>
+      <button class="ghost" id="btn-reset" type="button">重来 / Restart</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="stage" aria-label="编钟演奏区">
+      <div class="rack">
+        <div class="beam" aria-hidden="true"></div>
+        <div id="bells" style="display:contents"></div>
+      </div>
+      <div class="musicians" id="musicians" aria-hidden="true"></div>
+      <div class="legend">
+        <span><i class="gold"></i>正鼓部 · Centre strike</span>
+        <span><i class="jade"></i>侧鼓部 · Side strike</span>
+        <span>每口钟两个音，相差小三度 · A minor third apart</span>
+      </div>
+    </section>
+
+    <aside class="panel">
+      <div class="card">
+        <h2>任务 / TASK</h2>
+        <p class="hint-cn" id="hint-cn">正在准备……</p>
+        <p class="hint-en" id="hint-en">Preparing…</p>
+        <div class="progress-track" id="progress-track"></div>
+      </div>
+
+      <div class="card">
+        <h2>乐谱 / SCORE</h2>
+        <div class="score" id="score"></div>
+        <div class="caption" id="score-caption"></div>
+      </div>
+
+      <div class="card">
+        <h2>古今调音台 / TUNING</h2>
+        <div class="tuner-row">
+          <input id="tuner" type="range" min="-100" max="100" step="1" value="-50"
+                 aria-label="音高偏移（音分）">
+          <span class="tuner-value" id="tuner-value">-50 音分</span>
+        </div>
+        <div class="tuner-scale">
+          <span>古音基准（演示值）</span>
+          <span>现代标准音 A4 = 440Hz</span>
+        </div>
+        <div class="caption" id="tuner-caption">
+          拖动滑杆，听见同一段旋律在古今音准之间的差别。实际音高以测音报告为准。
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>五声对照 / PENTATONIC</h2>
+        <div class="scale-grid" id="scale-grid"></div>
+        <div class="caption">
+          中国五声音阶与 do re mi sol la 是同一串音。点一下试听。
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <p class="footer-note">
+    键盘操作：数字键 1–5 敲正鼓部，字母键 Q W E R T 敲侧鼓部。<br>
+    Keyboard: press 1–5 for the centre strike, Q W E R T for the side strike.
+  </p>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="overlay-card">
+    <h2>一钟双音</h2>
+    <p>两千四百年前，曾国的乐师铸造出一套六十五件编钟。它最不可思议的地方，藏在每一口钟的钟体上。</p>
+    <p class="fact">敲钟的正鼓部，会响一个音；敲同一口钟的侧鼓部，会响另一个音，两个音相差一个小三度。</p>
+    <p class="en">One bell, two pitches. Struck at the centre it sounds one note; struck at the side it sounds another,
+      a minor third apart. Your task is to bring a melody back to life.</p>
+    <button class="primary" id="btn-start" type="button">开 始 唤 醒</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ---------------------------------------------------------------
+     乐律数据 / Musical data
+     五声：宫(C) 商(D) 角(E) 徵(G) 羽(A)
+     每口钟有正鼓音与侧鼓音，两者相差小三度（3 个半音）。
+     说明：原型为演示，音高以现代十二平均律近似表示；
+     曾侯乙编钟的实际音高与现代标准音存在差异，具体数值以测音报告为准。
+  ----------------------------------------------------------------*/
+
+  var NOTES = {
+    "C4": { freq: 261.63, wu: "宫", number: "1", sol: "do" },
+    "D4": { freq: 293.66, wu: "商", number: "2", sol: "re" },
+    "E4": { freq: 329.63, wu: "角", number: "3", sol: "mi" },
+    "G4": { freq: 392.00, wu: "徵", number: "5", sol: "sol" },
+    "A4": { freq: 440.00, wu: "羽", number: "6", sol: "la" },
+    "C5": { freq: 523.25, wu: "宫", number: "1", sol: "do" }
+  };
+
+  /* 侧鼓音与正鼓音相差小三度；原型中用「低声部」音名记录，仅用于发声。 */
+  var BELLS = [
+    { index: 1, zheng: "C4", ce: "Eb4" },
+    { index: 2, zheng: "D4", ce: "F4" },
+    { index: 3, zheng: "E4", ce: "G4" },
+    { index: 4, zheng: "G4", ce: "Bb4" },
+    { index: 5, zheng: "A4", ce: "C5" }
+  ];
+
+  var AUX_FREQ = { "Eb4": 311.13, "F4": 349.23, "Bb4": 466.16 };
+
+  var STAGES = [
+    {
+      id: "pair",
+      hintCN: "先认识一口钟：敲它的正鼓部，再敲它的侧鼓部。",
+      hintEN: "Start with one bell. Strike the centre, then the side.",
+      captionCN: "同一个钟，两个音，相差一个小三度。",
+      captionEN: "One bell, two pitches, a minor third apart.",
+      notes: ["E4", "G4"]
+    },
+    {
+      id: "scale",
+      hintCN: "现在依次敲出五声：宫、商、角、徵、羽。",
+      hintEN: "Now play the five notes: gong, shang, jue, zhi, yu.",
+      captionCN: "宫商角徵羽，就是 do re mi sol la。",
+      captionEN: "Gong shang jue zhi yu — the same five notes as do re mi sol la.",
+      notes: ["C4", "D4", "E4", "G4", "A4"]
+    },
+    {
+      id: "melody",
+      hintCN: "最后，把八个音补完整。其中有四个音，要用同一口钟的侧鼓部。",
+      hintEN: "Finally, complete the eight-note melody. Four of them are side strikes.",
+      captionCN: "一段熟悉的五声旋律，就这样被唤醒了。",
+      captionEN: "A familiar pentatonic melody comes back to life.",
+      notes: ["E4", "E4", "G4", "A4", "C5", "C5", "A4", "G4"]
+    }
+  ];
+
+  var TOTAL_STEPS = STAGES.reduce(function (sum, stage) { return sum + stage.notes.length; }, 0);
+  var MUSICIAN_SLOTS = 8;
+
+  /* ---------------------------------------------------------------
+     音频 / Web Audio bell synthesis
+  ----------------------------------------------------------------*/
+
+  var AudioCtor = window.AudioContext || window.webkitAudioContext;
+  var audioCtx = null;
+  var masterGain = null;
+
+  function centsToRatio(cents) {
+    return Math.pow(2, cents / 1200);
+  }
+
+  var tuningCents = -50; /* 演示用古音基准偏移 */
+
+  function freqOf(note) {
+    var base = NOTES[note] ? NOTES[note].freq : AUX_FREQ[note];
+    if (!base) { return 440; }
+    return base * centsToRatio(tuningCents);
+  }
+
+  function ensureAudio() {
+    if (!AudioCtor) { return null; }
+    if (!audioCtx) {
+      audioCtx = new AudioCtor();
+      masterGain = audioCtx.createGain();
+      masterGain.gain.value = 0.85;
+      masterGain.connect(audioCtx.destination);
+    }
+    if (audioCtx.state === "suspended") { audioCtx.resume(); }
+    return audioCtx;
+  }
+
+  /* 钟声：非谐分音叠加 + 快速起振、长衰减包络 */
+  function playBell(note, when, level) {
+    var ctx = ensureAudio();
+    if (!ctx) { return 0; }
+
+    var t0 = ctx.currentTime + (when || 0);
+    var freq = freqOf(note);
+    var gain = (level === undefined ? 1 : level);
+
+    var partials = [
+      { ratio: 1.000, amp: 1.00, decay: 5.2 },
+      { ratio: 2.000, amp: 0.52, decay: 3.6 },
+      { ratio: 2.760, amp: 0.34, decay: 2.5 },
+      { ratio: 3.010, amp: 0.22, decay: 2.0 },
+      { ratio: 4.170, amp: 0.16, decay: 1.4 },
+      { ratio: 5.430, amp: 0.11, decay: 1.0 },
+      { ratio: 6.800, amp: 0.07, decay: 0.7 }
+    ];
+
+    var bus = ctx.createGain();
+    bus.gain.value = gain;
+    bus.connect(masterGain);
+
+    var longest = 0;
+    partials.forEach(function (p) {
+      var osc = ctx.createOscillator();
+      osc.type = "sine";
+      osc.frequency.value = freq * p.ratio;
+
+      var env = ctx.createGain();
+      var peak = p.amp * 0.22;
+      env.gain.setValueAtTime(0.0001, t0);
+      env.gain.linearRampToValueAtTime(peak, t0 + 0.006);
+      env.gain.exponentialRampToValueAtTime(0.0001, t0 + p.decay);
+
+      osc.connect(env);
+      env.connect(bus);
+      osc.start(t0);
+      osc.stop(t0 + p.decay + 0.08);
+      longest = Math.max(longest, p.decay);
+    });
+
+    /* 击打瞬态：极短的高频衰减，模拟槌击木头与青铜的接触声 */
+    var click = ctx.createOscillator();
+    click.type = "triangle";
+    click.frequency.value = freq * 8.5;
+    var clickEnv = ctx.createGain();
+    clickEnv.gain.setValueAtTime(0.09 * gain, t0);
+    clickEnv.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.075);
+    click.connect(clickEnv);
+    clickEnv.connect(masterGain);
+    click.start(t0);
+    click.stop(t0 + 0.1);
+
+    return longest;
+  }
+
+  function playSequence(notes, gap, level) {
+    var ctx = ensureAudio();
+    if (!ctx) { return []; }
+    var timers = [];
+    var step = gap === undefined ? 0.72 : gap;
+    notes.forEach(function (note, i) {
+      timers.push(setTimeout(function () { playBell(note, 0, level === undefined ? 0.95 : level); }, i * step * 1000));
+    });
+    return timers;
+  }
+
+  /* ---------------------------------------------------------------
+     界面 / DOM
+  ----------------------------------------------------------------*/
+
+  var bellsRoot = document.getElementById("bells");
+  var musiciansRoot = document.getElementById("musicians");
+  var hintCN = document.getElementById("hint-cn");
+  var hintEN = document.getElementById("hint-en");
+  var progressTrack = document.getElementById("progress-track");
+  var scoreRoot = document.getElementById("score");
+  var scoreCaption = document.getElementById("score-caption");
+  var tuner = document.getElementById("tuner");
+  var tunerValue = document.getElementById("tuner-value");
+  var tunerCaption = document.getElementById("tuner-caption");
+  var scaleGrid = document.getElementById("scale-grid");
+  var overlay = document.getElementById("overlay");
+  var btnDemo = document.getElementById("btn-demo");
+  var btnFree = document.getElementById("btn-free");
+  var btnReset = document.getElementById("btn-reset");
+  var btnStart = document.getElementById("btn-start");
+
+  var bellEls = [];
+  var bellLit = {};       /* index -> bool */
+  var stageIndex = 0;
+  var stepIndex = 0;
+  var freeMode = false;
+  var busy = false;
+
+  var SVG_NS = "http://www.w3.org/2000/svg";
+  var BELL_MARKUP =
+    '<svg viewBox="0 0 100 140" role="presentation">' +
+      '<defs>' +
+        '<linearGradient id="bronze" x1="0" y1="0" x2="1" y2="1">' +
+          '<stop offset="0%" stop-color="#8f7a48"/>' +
+          '<stop offset="32%" stop-color="#c9a227"/>' +
+          '<stop offset="62%" stop-color="#7d6330"/>' +
+          '<stop offset="100%" stop-color="#4b3a1c"/>' +
+        '</linearGradient>' +
+        '<filter id="glow" x="-60%" y="-60%" width="220%" height="220%">' +
+          '<feGaussianBlur stdDeviation="2.6" result="b"/>' +
+          '<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>' +
+        '</filter>' +
+      '</defs>' +
+      '<rect x="43" y="4" width="14" height="20" rx="3" fill="#6d5729"/>' +
+      '<circle cx="50" cy="5" r="3.4" fill="none" stroke="#8f7a48" stroke-width="2"/>' +
+      '<path class="body-fill" d="M33,26 L67,26 C69,52 73,84 82,112 C62,121 38,121 18,112 C27,84 31,52 33,26 Z"/>' +
+      '<path d="M33,26 L67,26" stroke="rgba(0,0,0,.35)" stroke-width="1.4"/>' +
+      '<path d="M30,40 C51,48 72,40 72,40" stroke="rgba(0,0,0,.22)" stroke-width="1.2" fill="none"/>' +
+      '<g fill="rgba(0,0,0,.34)">' +
+        '<circle cx="36" cy="54" r="3.1"/><circle cx="36" cy="66" r="3.1"/><circle cx="36" cy="78" r="3.1"/>' +
+        '<circle cx="64" cy="54" r="3.1"/><circle cx="64" cy="66" r="3.1"/><circle cx="64" cy="78" r="3.1"/>' +
+      '</g>' +
+      '<ellipse cx="50" cy="100" rx="9.5" ry="12" fill="rgba(255,255,255,.10)" stroke="rgba(201,162,39,.75)" stroke-width="1.2"/>' +
+    '</svg>' +
+    '<span class="ripple" aria-hidden="true"></span>';
+
+  function buildBells() {
+    BELLS.forEach(function (bell) {
+      var wrap = document.createElement("div");
+      wrap.className = "bell";
+      wrap.setAttribute("data-lit", "0");
+
+      var label = document.createElement("span");
+      label.className = "bell-label";
+      label.textContent = "钟 " + bell.index;
+      wrap.appendChild(label);
+
+      wrap.insertAdjacentHTML("beforeend", BELL_MARKUP);
+
+      var ce = document.createElement("button");
+      ce.type = "button";
+      ce.className = "zone zone-ce";
+      ce.setAttribute("aria-label", "钟 " + bell.index + " 侧鼓部");
+      ce.addEventListener("click", function () { strike(bell.index, "ce"); });
+
+      var zheng = document.createElement("button");
+      zheng.type = "button";
+      zheng.className = "zone zone-zheng";
+      zheng.setAttribute("aria-label", "钟 " + bell.index + " 正鼓部");
+      zheng.addEventListener("click", function () { strike(bell.index, "zheng"); });
+
+      wrap.appendChild(ce);
+      wrap.appendChild(zheng);
+
+      bellsRoot.appendChild(wrap);
+      bellEls.push(wrap);
+    });
+  }
+
+  function buildMusicians() {
+    for (var i = 0; i < MUSICIAN_SLOTS; i++) {
+      var figure = document.createElement("div");
+      figure.className = "musician";
+      figure.innerHTML =
+        '<svg viewBox="0 0 24 46" role="presentation">' +
+          '<circle cx="12" cy="7" r="5" fill="#c9a227"/>' +
+          '<path d="M12 13 C7 13 5 18 4 30 L6 44 L18 44 L20 30 C19 18 17 13 12 13 Z" fill="#c9a227" opacity=".82"/>' +
+        '</svg>';
+      musiciansRoot.appendChild(figure);
+    }
+  }
+
+  function buildProgressTrack() {
+    progressTrack.innerHTML = "";
+    for (var i = 0; i < TOTAL_STEPS; i++) {
+      var seg = document.createElement("span");
+      progressTrack.appendChild(seg);
+    }
+  }
+
+  function buildScaleGrid() {
+    ["C4", "D4", "E4", "G4", "A4"].forEach(function (note) {
+      var info = NOTES[note];
+      var cell = document.createElement("button");
+      cell.type = "button";
+      cell.className = "scale-cell";
+      cell.innerHTML = info.wu + "<small>" + info.number + " · " + info.sol + "</small>";
+      cell.setAttribute("aria-label", info.wu + "，" + info.sol);
+      cell.addEventListener("click", function () {
+        ensureAudio();
+        playBell(note, 0, 0.8);
+        if (stageIndex === 1 && !freeMode) { registerNote(note, -1, "zheng"); }
+      });
+      scaleGrid.appendChild(cell);
+    });
+  }
+
+  /* ---------------------------------------------------------------
+     游戏逻辑 / Game flow
+  ----------------------------------------------------------------*/
+
+  function currentStage() { return STAGES[stageIndex]; }
+
+  function isUnlocked(bellIndex) {
+    if (freeMode) { return true; }
+    if (stageIndex === 0) { return bellIndex === 3; }
+    if (stageIndex === 1) { return bellIndex === 1 || bellIndex === 2 || bellIndex === 3 || bellIndex === 5; }
+    return true;
+  }
+
+  function refreshBellStates() {
+    BELLS.forEach(function (bell, i) {
+      var lit = bellLit[bell.index] ? "1" : "0";
+      bellEls[i].setAttribute("data-lit", lit);
+      bellEls[i].classList.toggle("lit", lit === "1");
+    });
+    updateHintBells();
+  }
+
+  /* 只提示"哪一口钟"，不提示敲哪个部位，把发现留给孩子和初次接触的观众 */
+  function updateHintBells() {
+    var target = null;
+    if (!freeMode && !busy && stageIndex < STAGES.length) {
+      var stage = STAGES[stageIndex];
+      if (stepIndex < stage.notes.length) { target = stage.notes[stepIndex]; }
+    }
+    BELLS.forEach(function (bell, i) {
+      var matches = target !== null && isUnlocked(bell.index) &&
+        (bell.zheng === target || bell.ce === target);
+      bellEls[i].setAttribute("data-hint", matches ? "1" : "0");
+    });
+  }
+
+  function renderScore() {
+    var stage = currentStage();
+    scoreRoot.innerHTML = "";
+    stage.notes.forEach(function (note, i) {
+      var info = NOTES[note];
+      var chip = document.createElement("div");
+      chip.className = "note-chip";
+      if (i < stepIndex) { chip.className += " done"; }
+      else if (i === stepIndex) { chip.className += " current"; }
+      chip.innerHTML =
+        (info ? info.wu : "·") + "<small>" + (info ? info.number + " " + info.sol : note) + "</small>";
+      chip.title = note;
+      scoreRoot.appendChild(chip);
+    });
+    scoreCaption.textContent = stage.captionCN + "  " + stage.captionEN;
+  }
+
+  function renderProgress() {
+    var done = 0;
+    for (var i = 0; i < stageIndex; i++) { done += STAGES[i].notes.length; }
+    done += stepIndex;
+    var segments = progressTrack.children;
+    for (var j = 0; j < segments.length; j++) {
+      segments[j].classList.toggle("done", j < done);
+    }
+    var ratio = done / TOTAL_STEPS;
+    var lit = Math.round(ratio * MUSICIAN_SLOTS);
+    var figures = musiciansRoot.children;
+    for (var k = 0; k < figures.length; k++) {
+      figures[k].classList.toggle("lit", k < lit);
+    }
+  }
+
+  function renderHint() {
+    if (freeMode) {
+      hintCN.textContent = "自由敲击模式：随便敲，听一听每口钟的两个音。";
+      hintEN.textContent = "Free play: strike anything and listen to both pitches of every bell.";
+      return;
+    }
+    var stage = currentStage();
+    hintCN.textContent = stage.hintCN;
+    hintEN.textContent = stage.hintEN;
+  }
+
+  function zoneName(zone) { return zone === "zheng" ? "正鼓部" : "侧鼓部"; }
+  function zoneNameEn(zone) { return zone === "zheng" ? "centre strike" : "side strike"; }
+
+  function flashBell(bellIndex) {
+    var el = bellEls[bellIndex - 1];
+    if (!el) { return; }
+    el.classList.remove("hit");
+    void el.offsetWidth;
+    el.classList.add("hit");
+  }
+
+  function registerNote(note, bellIndex, zone) {
+    var stage = currentStage();
+    if (freeMode || stepIndex >= stage.notes.length) { return; }
+    var target = stage.notes[stepIndex];
+
+    if (note !== target) {
+      hintCN.textContent = "再试一次：这一步要的是「" +
+        (NOTES[target] ? NOTES[target].wu + "（" + NOTES[target].sol + "）" : target) + "」。";
+      hintEN.textContent = "Try again — this step needs " +
+        (NOTES[target] ? NOTES[target].sol : target) + ".";
+      return;
+    }
+
+    stepIndex += 1;
+
+    if (bellIndex > 0 && zone) {
+      bellLit[bellIndex] = true;
+      refreshBellStates();
+      var struck = "钟 " + bellIndex + " · " + zoneName(zone);
+      scoreCaption.textContent = struck + "  " + note + "（" +
+        (NOTES[note] ? NOTES[note].wu : "") + "） · " + zoneNameEn(zone);
+    }
+
+    renderScore();
+    renderProgress();
+
+    if (stepIndex >= stage.notes.length) {
+      if (stageIndex < STAGES.length - 1) {
+        hintCN.textContent = "好，这一段完成了。";
+        hintEN.textContent = "Nice — section complete.";
+        setTimeout(nextStage, 1100);
+      } else {
+        finish();
+      }
+    }
+  }
+
+  function nextStage() {
+    stageIndex += 1;
+    stepIndex = 0;
+    renderHint();
+    renderScore();
+    renderProgress();
+    playBell(currentStage().notes[0], 0.1, 0.7);
+  }
+
+  function strike(bellIndex, zone) {
+    if (busy) { return; }
+    var bell = BELLS[bellIndex - 1];
+    if (!bell) { return; }
+    var note = zone === "zheng" ? bell.zheng : bell.ce;
+
+    ensureAudio();
+    playBell(note, 0, 0.95);
+    flashBell(bellIndex);
+
+    if (!isUnlocked(bellIndex)) {
+      hintCN.textContent = "这一口钟还没有唤醒。先按提示敲前面的钟。";
+      hintEN.textContent = "This bell isn't awake yet — follow the hint first.";
+      return;
+    }
+
+    registerNote(note, bellIndex, zone);
+  }
+
+  function finish() {
+    busy = true;
+    hintCN.textContent = "整架编钟亮起来了。听一遍你刚唤醒的旋律。";
+    hintEN.textContent = "The whole rack is alight. Listen to the melody you brought back.";
+    scoreCaption.textContent = "古老音准 · Ancient tuning";
+
+    var timers = playSequence(currentStage().notes, 0.62, 0.95);
+    var total = timers.length * 620 + 2200;
+
+    setTimeout(function () {
+      scoreCaption.textContent = "同一段旋律，调到今天的音准 · Same melody at modern pitch";
+      animateTunerTo(0, function () {
+        playSequence(currentStage().notes, 0.62, 0.8);
+        setTimeout(function () {
+          busy = false;
+          hintCN.textContent = "完成。你可以继续自由敲击，或按「重来」再走一遍。";
+          hintEN.textContent = "Done. Keep exploring, or press Restart to play again.";
+          scoreCaption.textContent = "两千四百年之后，这串音仍然听得懂。";
+          refreshBellStates();
+        }, currentStage().notes.length * 620 + 900);
+      });
+    }, total);
+  }
+
+  function animateTunerTo(target, done) {
+    var start = Number(tuner.value);
+    var startTime = performance.now();
+    var duration = 1700;
+    function frame(now) {
+      var p = Math.min(1, (now - startTime) / duration);
+      var eased = p < 0.5 ? 2 * p * p : -1 + (4 - 2 * p) * p;
+      var value = Math.round(start + (target - start) * eased);
+      applyTuning(value);
+      if (p < 1) { requestAnimationFrame(frame); }
+      else if (done) { done(); }
+    }
+    requestAnimationFrame(frame);
+  }
+
+  function applyTuning(cents) {
+    tuningCents = cents;
+    tuner.value = String(cents);
+    var label = (cents > 0 ? "+" : "") + cents + " 音分";
+    if (cents === 0) { label += " · 现代"; }
+    tunerValue.textContent = label;
+  }
+
+  function resetGame(keepFree) {
+    stageIndex = 0;
+    stepIndex = 0;
+    busy = false;
+    freeMode = keepFree ? freeMode : false;
+    bellLit = {};
+    applyTuning(-50);
+    tunerCaption.textContent = "拖动滑杆，听见同一段旋律在古今音准之间的差别。实际音高以测音报告为准。";
+    refreshBellStates();
+    renderHint();
+    renderScore();
+    renderProgress();
+    if (!freeMode) { bellLit[3] = false; refreshBellStates(); }
+  }
+
+  function playDemo() {
+    ensureAudio();
+    var stage = currentStage();
+    if (freeMode) {
+      stage = STAGES[2];
+    }
+    playSequence(stage.notes, 0.68, 0.85);
+    hintCN.textContent = "示范中：请听这一段的音。";
+    hintEN.textContent = "Playing the target phrase for this section.";
+    setTimeout(renderHint, stage.notes.length * 680 + 1200);
+  }
+
+  /* ---------------------------------------------------------------
+     事件绑定 / Wiring
+  ----------------------------------------------------------------*/
+
+  document.addEventListener("keydown", function (event) {
+    if (event.metaKey || event.ctrlKey || event.altKey) { return; }
+    var key = event.key.toLowerCase();
+    var zhengKeys = ["1", "2", "3", "4", "5"];
+    var ceKeys = ["q", "w", "e", "r", "t"];
+    var zi = zhengKeys.indexOf(key);
+    var ci = ceKeys.indexOf(key);
+    if (zi >= 0) { event.preventDefault(); strike(zi + 1, "zheng"); }
+    else if (ci >= 0) { event.preventDefault(); strike(ci + 1, "ce"); }
+    else if (key === " ") { event.preventDefault(); playDemo(); }
+  });
+
+  tuner.addEventListener("input", function () {
+    applyTuning(Number(tuner.value));
+  });
+
+  btnDemo.addEventListener("click", playDemo);
+
+  btnFree.addEventListener("click", function () {
+    freeMode = !freeMode;
+    busy = false;
+    btnFree.setAttribute("aria-pressed", freeMode ? "true" : "false");
+    if (freeMode) {
+      BELLS.forEach(function (bell) { bellLit[bell.index] = true; });
+    } else {
+      resetGame(false);
+      return;
+    }
+    refreshBellStates();
+    renderHint();
+    renderScore();
+    renderProgress();
+  });
+
+  btnReset.addEventListener("click", function () {
+    freeMode = false;
+    btnFree.setAttribute("aria-pressed", "false");
+    resetGame(false);
+  });
+
+  btnStart.addEventListener("click", function () {
+    overlay.hidden = true;
+    ensureAudio();
+    playBell(STAGES[0].notes[1], 0.05, 0.9);
+    renderHint();
+  });
+
+  /* ---------------------------------------------------------------
+     初始化 / Init
+  ----------------------------------------------------------------*/
+
+  buildBells();
+  buildMusicians();
+  buildProgressTrack();
+  buildScaleGrid();
+  resetGame(false);
+
+  /* 便于截图与路演：?demo=1 跳过开场；?demo=N 预置前 N-1 步进度（不出声） */
+  var params = new URLSearchParams(window.location.search);
+  if (params.has("demo")) {
+    var preset = parseInt(params.get("demo"), 10) || 1;
+    overlay.hidden = true;
+    var flat = [];
+    STAGES.forEach(function (st, si) {
+      st.notes.forEach(function (note, ni) { flat.push({ s: si, n: ni, note: note }); });
+    });
+    var take = Math.min(Math.max(0, preset - 1), flat.length);
+    flat.slice(0, take).forEach(function (item) {
+      BELLS.forEach(function (bell) {
+        if (bell.zheng === item.note || bell.ce === item.note) { bellLit[bell.index] = true; }
+      });
+    });
+    if (take >= flat.length) {
+      stageIndex = STAGES.length - 1;
+      stepIndex = STAGES[stageIndex].notes.length;
+    } else {
+      stageIndex = flat[take].s;
+      stepIndex = flat[take].n;
+    }
+    refreshBellStates();
+    renderHint();
+    renderScore();
+    renderProgress();
+  }
+})();
+</script>
+</body>
+</html>
